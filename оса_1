@@ -2,11 +2,11 @@
 #include <array>
 using namespace std;
 
-int size;
 
 class stack
 {
     private:
+    	int size;
         int *array;
         int top;
     public:
@@ -17,6 +17,7 @@ class stack
         }
         stack(int m)
         {
+	    size = m;
             top = -1;
             array = new int[m];
         }
@@ -60,6 +61,7 @@ class stack
 };
 
     int main() {
+    	int size;
         int n;
         bool t;
         int Continue;
