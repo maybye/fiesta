@@ -2,7 +2,7 @@
 #include <array>
 using namespace std;
 
-int N;
+int size;
 
 class stack
 {
@@ -13,7 +13,7 @@ class stack
         stack()
         {
             top = -1;
-            array = new int[N];
+            array = new int[size];
         }
         stack(int m)
         {
@@ -27,7 +27,7 @@ class stack
         
         void push(int a)
         {
-            if (top == N -1 ){
+            if (top == size -1 ){
                 cout << "Стэк заполнен." << endl;
                 top ++;
                 array [top] = a;
@@ -52,7 +52,7 @@ class stack
         void print ()
         {
             if (top >= 0)
-	            for (int i = 0; i <= N; i++)
+	            for (int i = 0; i <= size; i++)
 	            {
 	                cout << "array[" << i << "] = " << array[i] << "; " << endl;
 	            }
@@ -66,10 +66,10 @@ class stack
         int read;
         
         cout << "Введите размер стэка: ";
-        cin >> N;
-        N--;
+        cin >> size;
+        size--;
         
-        stack one(N);
+        stack one(size);
         do {
             cout << "Для добавления нажмите - 1, для извлечения - 0. " << endl;
             cin >> t;
