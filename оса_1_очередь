@@ -1,0 +1,80 @@
+#include <iostream>
+using namespace std;
+
+class queue {
+    private:
+        int size;
+        int* array;
+        int top,end;
+        
+    public:
+        queue (int m)
+        {
+          size = m;
+          top = 0;
+          end = 0;
+          array = new int[m];
+        }
+        
+        ~queue()
+        {
+            delete[] array;
+        }
+
+    void Add (int a){
+        if (end  == size)
+        {
+            cout << "Очередь заполнена." << endl;
+            cout << end<< endl;
+            cout << top << endl;
+        }
+        else 
+        {
+            array[end] = a;
+            end++;
+            cout << end<< endl;
+            cout << top << endl;
+            cout << endl;
+        }
+    }
+    
+    void Extract () {
+        if (top != end)
+        {
+             cout << array [top] << endl;
+             top = (top +1) % size;
+        }
+        else {
+            cout << array [top] << endl;
+            cout << "Очередь пуста." << endl;
+        }
+    }
+};
+
+int main() {
+    int value;
+    int size;
+    bool t;
+    cout << "Введите количество элементов в очереди: ";
+    cin >> size;
+    queue one(size);
+    do {
+        cout << "Для добавления нажмите - 1, для извлечения - 0: ";
+        cin >> t;
+        if (t){
+            cout << "Введите значение: ";
+            cin >> value;
+            one.Add(value);
+        }
+        else {
+            cout << "Элемент равен: ";
+            one.Extract();
+        }
+    } while (true);
+    
+    return 0;
+}
+    
+    
+    
+    
