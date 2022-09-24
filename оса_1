@@ -85,7 +85,7 @@ class stack
                     one.pop();
                     cout << endl;
                 }
-            cout << "Продолжить? (1/0): ";
+            cout << "Продолжить? (1/0): " << endl;
             cin >> Continue;
             }
         while ( Continue != 0 );
