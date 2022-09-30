@@ -1,17 +1,18 @@
 #include <iostream>
+#include <array>
 using namespace std;
 
 
 class stack
 {
     private:
-    	  int size;
+    	int size;
         int *array;
         int top;
     public:
         stack(int m)
         {
-	    size = m;
+	        size = m;
             top = -1;
             array = new int[m];
         }
@@ -31,7 +32,11 @@ class stack
                 top ++; 
                 array[0] = a; 
                 }        
-            else cout << "Невозможно добавить последний элемент: стэк полон." << endl;
+            else {
+                cout << "Невозможно добавить последний элемент: стэк полон"<< endl;
+                throw;
+            }
+            
             }
         
         
@@ -42,20 +47,24 @@ class stack
                 cout << "Элемент равен: " << array[0] << endl;
                 array[0] = 0;
                 for (size_t i = 0; i < size; i++) 
-                  { 
+                { 
                     array[i] = array[i + 1]; 
-                  } 
+                } 
                 top --; 
             } 
-            else cout << "Стэк пуст" << endl; 
+            else {
+                cout <<  "Стэк пуст" << endl;
+                throw;
+            }
         }
 };
 
     int main() {
-    	  int size;
+    	int size;
         int n;
         bool t;
         int Continue;
+        
         
         cout << "Введите размер стэка: ";
         cin >> size;
