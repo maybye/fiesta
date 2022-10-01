@@ -28,19 +28,17 @@ class queue {
                 { 
                     array[i] = array[i - 1]; 
                 } 
+            
+            array[0] = a;
             top ++; 
-            array[0] = a; 
             } 
-        else {
-            cout << "Невозможно добавить последний элемент: очередь заполнена." << endl;
-            throw;
-        }
     }
     
-     void Extract () {
+    int Extract () {
+        int m;
         if (top >= 0) 
             {   
-                cout << "Элемент равен: " << array [top] << endl;
+                m = array[top];
                 array [top] = 0;
                 for (int i = size-1; i < 0; i--) 
                 { 
@@ -48,33 +46,54 @@ class queue {
                 }    
                 top --; 
                 
-            } 
-        else {
-            cout << "Очередь пуста." << endl;
-            throw;
-        }
-
+            }
+        return m;
     }
+    
+    bool Full() {
+            if (top == size -1) return true;
+            else return false;
+        }
+        
+        bool Empty() {
+            if (top == -1) return true;
+            else return false;
+        }
+    
 };
 
 int main() {
-    int value;
+    
+    int size, value;
+    int IsFull, IsEmpty;
     int Continue;
-    int size;
     bool t;
+    
     cout << "Введите количество элементов в очереди: ";
     cin >> size;
+    
     queue one(size);
     do {
         cout << "Для добавления нажмите - 1, для извлечения - 0: ";
         cin >> t;
         if (t){
-            cout << "Введите значение: ";
-            cin >> value;
-            one.Add(value);
-        }
+            IsFull = one.Full();
+            if (IsFull == 0) {
+                cout << "Введите значение: ";
+                cin >> value;
+                one.Add(value);
+               
+            }
+            else cout << "Очередь заполнена." << endl;
+            }
+            
         else {
-            one.Extract();
+            IsEmpty = one.Empty();
+            if (IsEmpty == 0) {
+                value = one.Extract();
+                cout << "Элемент равен: " << value << endl;
+            }
+            else cout << "Очередь пуста." << endl;
         }
         
         cout << "Продолжить? (1/0): ";
