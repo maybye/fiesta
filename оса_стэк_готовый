@@ -32,19 +32,15 @@ class stack
                 top ++; 
                 array[0] = a; 
                 }        
-            else {
-                cout << "Невозможно добавить последний элемент: стэк полон"<< endl;
-                throw;
-            }
-            
             }
         
         
-        void pop() 
+        int pop() 
         { 
+         int m;
             if (top >= 0) 
             {
-                cout << "Элемент равен: " << array[0] << endl;
+                m = array[0];
                 array[0] = 0;
                 for (size_t i = 0; i < size; i++) 
                 { 
@@ -52,19 +48,29 @@ class stack
                 } 
                 top --; 
             } 
-            else {
-                cout <<  "Стэк пуст" << endl;
-                throw;
-            }
+        return m;
+            
+        }
+        
+        bool Full() {
+            if (top == size) return true;
+            else return false;
+        }
+        
+        bool Empty() {
+            if (top == -1) return true;
+            else return false;
         }
 };
+        
+        
+        
 
     int main() {
-    	int size;
-        int n;
-        bool t;
+    	int size, n, value;
+        int IsFull, IsEmpty;
         int Continue;
-        
+        bool t;
         
         cout << "Введите размер стэка: ";
         cin >> size;
@@ -77,13 +83,23 @@ class stack
             cin >> t;
             
                 if (t) {
+                    IsFull = one.Full();
+                    if (IsFull == 0) {
                     cout << "Введите значение элемента: ";
                     cin >> n;
                     one.push (n);
+                    }
+                else cout << "Стэк заполнен." << endl;
                 }
     
                 else {
-                    one.pop();
+                    IsEmpty = one.Empty();
+                    if (IsEmpty == 0) {
+                        value = one.pop();
+                        cout << "Элемент равен : " << value << endl;
+                    }
+                    else cout << "Стэк пуст." << endl;
+                    
                 }
 
             cout << "Продолжить? (1/0): ";
