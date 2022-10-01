@@ -55,7 +55,7 @@ class queue {
             else return false;
         }
         
-        bool Empty() {
+    bool Empty() {
             if (top == -1) return true;
             else return false;
         }
