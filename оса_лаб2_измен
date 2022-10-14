@@ -1,0 +1,343 @@
+#include <iostream> 
+#include <fstream> // для работы с txt файлом
+#include <string>
+#include <conio.h>
+#include <iomanip> // для "setw()"
+#include <algorithm> // для "find()"
+#include<vector> 
+
+using namespace std;
+
+/*
+    Разработать программу ведения и использование базы данных с использованием структурных переменных и сохранением данных в плоском (без использования форматирования) файле.
+    Для этого создать шаблон структуры, создать набор функций для работы с массивом структурных переменных. В структурной переменной предусмотреть способ отметки ее как не содержащей данных (т.е. "пустой"). 
+
+    Разработать функции в соответствии с ниже приводимым перечнем:
+    1.  Очистка структурных переменных (отметка переменной как не содержащей данных). Функция должна получать в качестве параметра индекс массива.
+    2.  Поиск свободной структурной переменной. Функция должна возвращать индекс первого свободного элемента в массиве структур.
+    3.  Ввод элементов (полей) структуры с клавиатуры. В качестве параметра в функцию должен передаваться индекс элемента массива.
+    4.  Вывод элементов (полей) структуры на монитор. В функцию должен передаваться индекс элемента массива.
+    5.  Вывод на экран всех заполненных элементов массива структур.
+    6.  Поиск в массиве структур элемента с заданным значением поля или с наиболее близким к нему по значению. Предусмотреть возможность задания одного числового значения и одного строкового.
+    7.  Поиск в массиве структуры с минимальным значением заданного поля. Поле должно передаваться в поле числом, обозначающим номер поля в структуре.
+    8.  Сортировка массива структур в порядке возрастания заданного поля (при сортировке можно использовать тот факт, что в С++ разрешается присваивание структурированных переменных);
+    9.  Сортировка массива структур в порядке убывания заданного поля (при сортировке можно использовать тот факт, что в С++ разрешается присваивание структурированных переменных);
+    10. Функция чтения файла с содержимым базы данных (массива структурных элементов).
+    11. Функция записи в файл содержимого базы данных (массива структурных элементов).
+*/
+
+struct Date {
+        int day = 0;
+        int month = 0;
+        int year = 0;
+    };
+    
+struct Line 
+{ 
+    int page_number = 0;
+    int string_number = 0;
+    string text = "x";
+    Date d;
+    bool isClear = true;
+}; 
+
+class Database {
+    
+private:
+    int size; 
+    Line* n;
+    
+public:
+
+    Database(int lenght) 
+    { 
+        n = new Line[lenght]; 
+        size = lenght; 
+    }
+
+    // Функция очистки поля
+    void clear(int i) {
+        n[i].page_number = 0;
+        n[i].string_number = 0;
+        n[i].text = "x";
+        n[i].d.day = 0;
+        n[i].d.month = 0;
+        n[i].d.year = 0;
+        n[i].isClear = true;
+    }
+
+    // Функция проверки на "чистоту" поля
+    bool isClear(int i) {
+        if (n[i].isClear == true) {
+            return true;
+        }
+        else return false;
+    }
+
+    // Функция записи конкретного поля
+    void input_item(int i, int pn, int sn, string t, int d, int m, int y) {
+        n[i].page_number = pn;
+        n[i].string_number = sn;
+        n[i].text = t;
+        n[i].d.day = d;
+        n[i].d.month = m;
+        n[i].d.year = y;
+        n[i].isClear = false;
+    }
+
+    // Функция вывода конкретного поля
+    Line output_item (int i) { 
+        if (n[i].isClear != true) 
+            return n[i];
+    }
+        
+    vector<Line> output_all_items() 
+    { 
+        vector<Line> lines; 
+        for (int i = 0; i < size; i++) { 
+            if (n[i].isClear != true) { 
+                lines.push_back(n[i]); 
+            } 
+        } 
+        return lines; 
+    } 
+    // Функция вывода всех заполненных полей
+
+    // Функция поиска записи по тексту записи
+    void search_by_str(string t) {
+        for (int i = 0; i < 15; i++) {
+            if (n[i].text.find(t) != std::string::npos) {
+                output_item(i);
+            }
+        }
+    }
+
+    // Функция поиска минимальной записи
+    int min_search(char ch) {
+        int min = 9999, temp = 1;
+        switch (ch) {
+        case('1'):
+            for (int i = 0; i < 15; i++) {
+                if ((n[i].page_number < min) && (n[i].isClear == false)) {
+                    min = n[i].page_number;
+                    temp = i;
+                }
+            }
+            return temp;
+            break;
+
+        case('2'):
+            for (int i = 0; i < 15; i++) {
+                if ((n[i].string_number < min) && (n[i].isClear == false)) {
+                    min = n[i].string_number;
+                    temp = i;
+                }
+            }
+            return(temp);
+            break;
+        }
+    return 0;
+    }
+
+    // Функция сортировки по возрастанию и убыванию номера страницы
+    void sort(char ch) {
+        Line temp;
+        switch (ch) {
+        // по возрастанию
+        case('i'):
+            // Сортировка "пузырьком"
+            for (int i = 0; i < 15 - 1; i++) {
+                for (int t = 0; t < 15 - i; t++) {
+                    if (n[t].page_number > n[t + 1].page_number) {
+                        temp = n[t];
+                        n[t] = n[t + 1];
+                        n[t + 1] = temp;
+                    }
+                }
+            }
+            break;
+        // по убыванию
+        case('d'):
+            // Сортировка "пузырьком"
+            for (int i = 0; i < 15 - 1; i++) {
+                for (int t = i + 1; t < 15; t++) {
+                    if (n[i].page_number < n[t].page_number) {
+                        temp = n[t];
+                        n[t] = n[i];
+                        n[i] = temp;
+                    }
+                }
+            }
+            break;
+        }
+    }
+
+    // Функция чтения txt файла
+    void read_file() {
+        ifstream fin("database.txt");
+        if (fin.is_open()) {
+            for (int i = 0; i < 15; i++) {
+                fin >> n[i].page_number >> n[i].string_number
+                    >> n[i].text >> n[i].d.day >> n[i].d.month >> n[i].d.year;
+                // условие, чтобы не выводить в дальнейшем пустые ячейки
+                if ((n[i].page_number > 0) || (n[i].string_number > 0)) {
+                    n[i].isClear = false;
+                }
+            }
+            cout << endl << "Complete!" << endl;
+        }
+        else {
+            cout << endl << "File not found!" << endl;
+        }
+        fin.close();
+    }
+
+    // Функция записи txt файла
+    void write_file() {
+        ofstream fout("database.txt");
+        if (fout.is_open()) {
+            for (int i = 0; i < 15; i++) {
+                fout << n[i].page_number << ' ' << n[i].string_number << ' '
+                    << n[i].text << ' ' << n[i].d.day << ' ' 
+                    << n[i].d.month << ' ' << n[i].d.year << endl;
+            }
+            cout << endl << "Complete!" << endl;
+        }
+        else {
+            cout << endl << "File not found!" << endl;
+        }
+        fout.close();
+    }
+};
+
+int main() {
+    int count;
+    Line line;
+    cout << "Введите количество текстовых изменений: ";
+    cin >> count;
+    Database linesDatabase(count);
+    // Переменная выбора для бесконечного цикла
+    char choice;
+    bool IsClear;
+    // Переменная для ввода номера поля
+    int item;
+    char v;
+    // Переменные для ввода значений структуры
+    int pn, sn;
+    string t;
+    // Переменные для ввода даты
+    char slash;
+    int d, m, y;
+
+    do {
+        cout << endl;
+        cout << "Что необходимо выполнить?" << endl;
+        cout << "   1 - очистить элемент массива;" << endl;
+        cout << "   2 - вывести индекс первого свободного элемента;" << endl;
+        cout << "   3 - ввести значение;" << endl;
+        cout << "   4 - вывести значение;" << endl;
+        cout << "   5 - вывести все элементы;" << endl;
+        cout << "   6 - поиск по значению;" << endl;
+        cout << "   7 - поиск минимального значения;" << endl;
+        cout << "   8 - отсортировать массив;" << endl;
+        cout << "   9 - прочитать txt-file;" << endl;
+        cout << "   10 - ввести txt-file." << endl;
+        cout << "Ваш ответ: "; 
+        cin >> v; 
+        cout << endl;
+
+        switch (v) {
+        // Функция очистки определенного поля
+        case '1':
+            cout << "Элемент, который необходимо очистить: "; 
+            cin >> item;
+            linesDatabase.clear(item);
+            cout << endl << "Задача выполнена." << endl;
+            break;
+
+        // Функция поиска первого свободного поля
+        case '2':
+            for (int i = 0; i <= 15; i++) {
+                IsClear = linesDatabase.isClear(i);
+                if (IsClear == true) {
+                    cout << endl << "Ближайшая свободная ячейка: " << i << endl;
+                    break;
+                }
+            }
+            break;
+
+        // Функция записи определенного поля
+        case '3':
+            cout << "Номер записи: "; 
+            cin >> item;
+            cout << "Номер страницы: "; 
+            cin >> pn;
+            cout << "Номер строки: "; 
+            cin >> sn;
+            cout << "Текст: "; 
+            cin.ignore(); getline(cin, t);
+            cout << "Дата: (dd/mm/yy): "; 
+            cin >> d >> slash >> m >> slash >> y;
+            linesDatabase.input_item(item, pn, sn, t, d, m, y);
+            cout << endl << "Задача выполнена." << endl;
+            break;
+
+        // Функция вывода определенного поля на экран
+        case '4':
+            cout << "Введите индекс ячейки, которую необходимо вывести: "; 
+            cin >> item;
+            line = linesDatabase.output_item(item);
+            cout << " | N " << setw(3) << item;
+            cout << " | " << setw(4) << line.page_number;
+            cout << " | " << setw(4) << line.string_number <<  " | " << setw(25) << line.text;
+            cout << " | " << line.d.day << "/" << line.d.month << "/" << line.d.year << " | " << endl;
+            break;
+
+        // Функция вывода всех заполненных полей
+        case '5':
+            linesDatabase.output_all_items();
+            break;
+
+        // Функция поиска элемента с заданным значением
+        case '6':
+            cout << "Введите строку для поиска: ";
+            cin >> t;
+            linesDatabase.search_by_str(t);
+            //cout << "овпадений не найдено." << endl;
+            break;
+        
+        // Функция поиска минимального значения одного из полей
+        case '7':
+            cout << "Search min by what column you want to do? ((1)age number, (2)tring number) ";
+            cin >> choice; 
+            cout << endl;
+            linesDatabase.output_item(linesDatabase.min_search(choice));
+            break;
+
+        // Функция сортировки по возрастанию и убыванию номера страницы
+        case '8':
+            cout << "Сортировать по возрастанию(1) или убыванию(2) ";
+            choice = getch(); 
+            cout << endl;
+            linesDatabase.sort(choice);
+            linesDatabase.output_all_items();
+            break;
+
+        // Функция по чтению txt файла
+        case 'r':
+            linesDatabase.read_file();
+            break;
+
+        // Функция по записи txt файла
+        case 'w':
+            linesDatabase.write_file();
+            break;
+        }
+
+        cout << "Continue? (1/0) "; 
+        cin >> choice;
+        cout << endl;
+    }
+    while (choice == '1');
+    return 0;
+}
