@@ -53,13 +53,21 @@ public:
     Database(int lenght) 
     { 
         n = new Line[lenght]; 
-        size = --lenght; 
+        size = lenght; 
     }
+    
+    void Swap(Line* xp, Line* yp) 
+    { 
+        Line temp = *xp; 
+        *xp = *yp; 
+        *yp = temp; 
+    } 
 
 
     // Функция очистки поля
     void clear(int i) 
     {
+        
         n[i].line_number = 0;
         n[i].page_number = 0;
         n[i].string_number = 0;
@@ -80,8 +88,9 @@ public:
     }
 
     // Функция записи конкретного поля
-    void input_item(int i, int pn, int sn, string t, int d, int m, int y) 
+    void input_item (int i, int pn, int sn, string t, int d, int m, int y) 
     {
+        
         n[i].line_number = i;
         n[i].page_number = pn;
         n[i].string_number = sn;
@@ -102,7 +111,7 @@ public:
     vector<Line> output_all_items() 
     { 
         vector<Line> lines; 
-        for (int i = 0; i <= size; i++) { 
+        for (int i = 0; i < size; i++) { 
             if (n[i].isClear == false) { 
                 lines.push_back(n[i]); 
             } 
@@ -112,7 +121,8 @@ public:
 
     // Функция поиска записи по тексту записи
     void search_by_str(string t) {
-        for (int i = 0; i < size; i++) {
+        vector<Line> lines; 
+        for (int i = 0; i < lines.size(); i++) {
             if (n[i].text.find(t) != std::string::npos) {
                 output_item(i);
             }
@@ -120,11 +130,12 @@ public:
     }
 
     // Функция поиска минимальной записи
-    int min_search(int ch) {
-        int min = 9999, temp = 1;
+    int  min_search(int ch) {
+        
+        int min = 9999, temp = 0;
         switch (ch) {
         case('1'):
-            for (int i = 0; i <= size; i++) {
+            for (int i = 0; i < size; i++) {
                 if ((n[i].page_number < min) && (n[i].isClear == false)) {
                     min = n[i].page_number;
                     temp = i;
@@ -134,7 +145,7 @@ public:
             break;
 
         case('2'):
-            for (int i = 0; i <= size; i++) {
+            for (int i = 0; i < size; i++) {
                 if ((n[i].string_number < min) && (n[i].isClear == false)) {
                     min = n[i].string_number;
                     temp = i;
@@ -229,7 +240,6 @@ public:
 int main() {
     int count;
     Line line;
-    string lin;
     cout << "Введите количество текстовых изменений: ";
     cin >> count;
     Database linesDatabase(count);
@@ -279,7 +289,7 @@ int main() {
         // Функция поиска первого свободного поля
         case '2':
         {
-            vector<Line> lines = linesDatabase.output_all_items();
+            vector <Line> lines;
             for (int i = 0; i <= lines.size(); i++) {
                 IsClear = linesDatabase.isClear(i);
                 if (IsClear == true) {
@@ -326,9 +336,9 @@ int main() {
         // Функция вывода всех заполненных полей
         case '5':
         {
-            size_t i;
+            
             vector<Line> lines = linesDatabase.output_all_items(); 
-            for (i = 0; i < lines.size(); i++) {
+            for (size_t i = 0; i < lines.size(); i++) {
                 line = lines[i];
                 cout << setiosflags(ios::left)
                  << " | N " << setw(3) << line.line_number
