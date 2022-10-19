@@ -55,13 +55,6 @@ public:
         n = new Line[lenght]; 
         size = lenght; 
     }
-    
-    void Swap(Line* xp, Line* yp) 
-    { 
-        Line temp = *xp; 
-        *xp = *yp; 
-        *yp = temp; 
-    } 
 
 
     // Функция очистки поля
@@ -79,18 +72,17 @@ public:
     }
 
     // Функция проверки на "чистоту" поля
-    bool isClear(int i) 
+    int isClear(int i) 
     {
         if (n[i].isClear == true) {
-            return true;
+            return i;
         }
-        else return false;
+        else return -1;
     }
 
     // Функция записи конкретного поля
     void input_item (int i, int pn, int sn, string t, int d, int m, int y) 
     {
-        vector <Line> lines;
         n[i].line_number = i;
         n[i].page_number = pn;
         n[i].string_number = sn;
@@ -255,7 +247,7 @@ int main() {
     // Переменная выбора для бесконечного цикла
     int choice;
     int Continue;
-    bool IsClear;
+    int IsClear;
     // Переменная для ввода номера поля
     int item;
     char v;
@@ -298,13 +290,13 @@ int main() {
         // Функция поиска первого свободного поля
         case '2':
         {
-            vector <Line> lines;
-            for (int i = 0; i < lines.size(); i++) {
+            //vector <Line> lines;
+            for (int i = 0; i < count; i++) {
                 IsClear = linesDatabase.isClear(i);
-                if (IsClear == true) {
+                if (IsClear != -1) {
                     cout << endl << "Ближайшая свободная ячейка: " << i << endl;
-                    break;
                 }
+            break;
             }
             break;
         }
