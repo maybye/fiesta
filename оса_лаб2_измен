@@ -172,7 +172,7 @@ public:
         {
             // Сортировка "пузырьком"
             vector <Line> lines;
-            for (int i = 0; i < size; i++) {
+            for (int i = 0; i < size - 1; i++) {
                 for (int t = 0; t < size - i; t++) {
                     if (n[t].page_number > n[t + 1].page_number) {
                         temp = n[t];
@@ -181,8 +181,10 @@ public:
                         
                     }
                 }
-                lines.push_back(n[i]);
             }
+            for (int i = 0; i < size; i++) { 
+                lines.push_back(n[i]); 
+            } 
             return lines;
             //break;
         }
@@ -192,16 +194,17 @@ public:
             // Сортировка "пузырьком"
             vector <Line> lines;
             for (int i = 0; i < size; i++) {
-                for (int t = i + 1; t < size - i; t++) {
-                    if (n[i].page_number < n[t].page_number) {
-                        temp = n[t];
-                        n[t] = n[i];
-                        n[i] = temp;
+                for (int t = size - 1; t > i; t--) {
+                    if (n[t-1].page_number < n[t].page_number) {
+                        n[size] = n[t - 1];
+                        n[t - 1] = n[t];
+                        n[t] = n[size];
                     }
                 }
-                lines.push_back(n[i]);
             }
-            
+            for (int i = 0; i < size; i++) { 
+                lines.push_back(n[i]); 
+            } 
             return lines;
         }
     }
@@ -391,18 +394,7 @@ int main() {
             cout << endl;
             
             vector <Line> lines;
-            //linesDatabase.sort(choice);
-            //vector <Line> lines;
-            linesDatabase.sort(choice);
-            /*for (size_t i = 0; i < lines.size(); i++) {
-            cout << setiosflags(ios::left)
-                 << " | N " << setw(3) << line.line_number
-                 << " | " << setw(4) << line.page_number
-                 << " | " << setw(4) << line.string_number <<  " | " << setw(25) << line.text
-                 << " | " << line.d.day << "/" << line.d.month << "/" << line.d.year << " | " << endl;
-            }
-            break;*/
-            lines = linesDatabase.output_all_items(); 
+            lines = linesDatabase.sort(choice); 
             for (size_t i = 0; i < lines.size(); i++) {
                 line = lines[i];
                 cout << setiosflags(ios::left)
