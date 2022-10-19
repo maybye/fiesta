@@ -120,11 +120,10 @@ public:
     } 
 
     // Функция поиска записи по тексту записи
-    void search_by_str(string t) {
-        vector<Line> lines; 
-        for (int i = 0; i < lines.size(); i++) {
+    Line search_by_str(string t) {
+        for (int i = 0; i < size; i++) {
             if (n[i].text.find(t) != std::string::npos) {
-                output_item(i);
+                return n[i];
             }
         }
     }
@@ -156,7 +155,6 @@ public:
                 }
             }
             return temp;
-           // break;
         }
         }
     }
@@ -164,7 +162,6 @@ public:
     // Функция сортировки по возрастанию и убыванию номера страницы
         
         vector <Line> sort(int ch) {
-        Line temp;
         int i;
         switch (ch) {
         // по возрастанию
@@ -175,9 +172,9 @@ public:
             for (int i = 0; i < size - 1; i++) {
                 for (int t = 0; t < size - i; t++) {
                     if (n[t].page_number > n[t + 1].page_number) {
-                        temp = n[t];
+                        n[size] = n[t];
                         n[t] = n[t + 1];
-                        n[t + 1] = temp;
+                        n[t + 1] = n[size];
                         
                     }
                 }
@@ -186,7 +183,6 @@ public:
                 lines.push_back(n[i]); 
             } 
             return lines;
-            //break;
         }
         // по убыванию
         case 2:
@@ -303,7 +299,7 @@ int main() {
         case '2':
         {
             vector <Line> lines;
-            for (int i = 0; i <= lines.size(); i++) {
+            for (int i = 0; i < lines.size(); i++) {
                 IsClear = linesDatabase.isClear(i);
                 if (IsClear == true) {
                     cout << endl << "Ближайшая свободная ячейка: " << i << endl;
@@ -339,7 +335,7 @@ int main() {
             cin >> item;
             line = linesDatabase.output_item(item);
             cout << setiosflags(ios::left)
-                 << " | N " << setw(3) << item
+                 << " | N " << setw(3) << line.line_number
                  << " | " << setw(4) << line.page_number
                  << " | " << setw(4) << line.string_number <<  " | " << setw(25) << line.text
                  << " | " << line.d.day << "/" << line.d.month << "/" << line.d.year << " | " << endl;
@@ -367,7 +363,12 @@ int main() {
         {
             cout << "Введите строку для поиска: ";
             cin >> t;
-            linesDatabase.search_by_str(t);
+            line = linesDatabase.search_by_str(t);
+            cout << setiosflags(ios::left)
+                 << " | N " << setw(3) << line.line_number
+                 << " | " << setw(4) << line.page_number
+                 << " | " << setw(4) << line.string_number <<  " | " << setw(25) << line.text
+                 << " | " << line.d.day << "/" << line.d.month << "/" << line.d.year << " | " << endl;
             break;
         }
         
