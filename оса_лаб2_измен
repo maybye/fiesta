@@ -32,7 +32,7 @@ struct Date {
         int year = 0;
     };
     
-struct Line 
+struct Line
 { 
     int line_number = 0;
     int page_number = 0;
@@ -90,7 +90,7 @@ public:
     // Функция записи конкретного поля
     void input_item (int i, int pn, int sn, string t, int d, int m, int y) 
     {
-        
+        vector <Line> lines;
         n[i].line_number = i;
         n[i].page_number = pn;
         n[i].string_number = sn;
@@ -130,69 +130,79 @@ public:
     }
 
     // Функция поиска минимальной записи
-    int  min_search(int ch) {
+    int min_search(int ch) {
         
-        int min = 9999, temp = 0;
+        int min = 9999;
+        int temp = 0;
         switch (ch) {
-        case('1'):
+        case 1:
+        {
             for (int i = 0; i < size; i++) {
                 if ((n[i].page_number < min) && (n[i].isClear == false)) {
                     min = n[i].page_number;
                     temp = i;
+                
                 }
             }
             return temp;
-            break;
-
-        case('2'):
+            
+        }
+        case 2:
+        {
             for (int i = 0; i < size; i++) {
                 if ((n[i].string_number < min) && (n[i].isClear == false)) {
                     min = n[i].string_number;
                     temp = i;
                 }
             }
-            return(temp);
-            break;
+            return temp;
+           // break;
         }
-    return 0;
+        }
     }
 
     // Функция сортировки по возрастанию и убыванию номера страницы
         
-        void sort(int ch) {
+        vector <Line> sort(int ch) {
         Line temp;
+        int i;
         switch (ch) {
         // по возрастанию
-        case('1'):
+        case 1:
         {
             // Сортировка "пузырьком"
             vector <Line> lines;
-            for (int i = 1; i < lines.size(); i++) {
-                for (int t = 0; t <lines.size(); t++) {
+            for (int i = 0; i < size; i++) {
+                for (int t = 0; t < size - i; t++) {
                     if (n[t].page_number > n[t + 1].page_number) {
                         temp = n[t];
                         n[t] = n[t + 1];
                         n[t + 1] = temp;
+                        
                     }
                 }
+                lines.push_back(n[i]);
             }
-            break;
+            return lines;
+            //break;
         }
         // по убыванию
-        case('2'):
+        case 2:
         {
             // Сортировка "пузырьком"
             vector <Line> lines;
-            for (int i = 0; i < lines.size(); i++) {
-                for (int t = i + 1; t < lines.size(); t++) {
+            for (int i = 0; i < size; i++) {
+                for (int t = i + 1; t < size - i; t++) {
                     if (n[i].page_number < n[t].page_number) {
                         temp = n[t];
                         n[t] = n[i];
                         n[i] = temp;
                     }
                 }
+                lines.push_back(n[i]);
             }
-            break;
+            
+            return lines;
         }
     }
 }
@@ -364,7 +374,7 @@ int main() {
             cout << "Введите параметр,по которому необходимо выполнить поиск (1 - номер страницы, 2 - номер строки) ";
             cin >> choice;  
             cout << endl;
-            linesDatabase.output_item(linesDatabase.min_search(choice));
+            line = linesDatabase.output_item(linesDatabase.min_search(choice));
             cout << setiosflags(ios::left)
                  << " | N " << setw(3) << line.line_number
                  << " | " << setw(4) << line.page_number
@@ -380,13 +390,22 @@ int main() {
             cin >> choice;  
             cout << endl;
             
-            linesDatabase.sort(choice);
-            vector<Line>
+            vector <Line> lines;
             //linesDatabase.sort(choice);
-            lines = linesDatabase.output_all_items();
+            //vector <Line> lines;
+            linesDatabase.sort(choice);
+            /*for (size_t i = 0; i < lines.size(); i++) {
+            cout << setiosflags(ios::left)
+                 << " | N " << setw(3) << line.line_number
+                 << " | " << setw(4) << line.page_number
+                 << " | " << setw(4) << line.string_number <<  " | " << setw(25) << line.text
+                 << " | " << line.d.day << "/" << line.d.month << "/" << line.d.year << " | " << endl;
+            }
+            break;*/
+            lines = linesDatabase.output_all_items(); 
             for (size_t i = 0; i < lines.size(); i++) {
                 line = lines[i];
-            cout << setiosflags(ios::left)
+                cout << setiosflags(ios::left)
                  << " | N " << setw(3) << line.line_number
                  << " | " << setw(4) << line.page_number
                  << " | " << setw(4) << line.string_number <<  " | " << setw(25) << line.text
