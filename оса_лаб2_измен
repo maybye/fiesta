@@ -290,14 +290,17 @@ int main() {
         // Функция поиска первого свободного поля
         case '2':
         {
-            //vector <Line> lines;
             for (int i = 0; i < count; i++) {
                 IsClear = linesDatabase.isClear(i);
                 if (IsClear != -1) {
-                    cout << endl << "Ближайшая свободная ячейка: " << i << endl;
+                    cout << "Ближайшая свободная ячейка: " << i << endl;
+                break;
                 }
-            break;
             }
+            
+            if (IsClear == -1)
+                cout << "Пустых ячеек больше нет!" << endl;
+            
             break;
         }
 
@@ -312,7 +315,6 @@ int main() {
             cin >> sn;
             cout << "Текст: "; 
             cin >> t;
-            //cin.ignore(); getline(cin, t);
             cout << "Дата: (dd/mm/yy): "; 
             cin >> d >> slash >> m >> slash >> y;
             linesDatabase.input_item(item, pn, sn, t, d, m, y);
