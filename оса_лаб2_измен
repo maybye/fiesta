@@ -238,11 +238,6 @@ public:
                     n[i].isClear = false;
                 }
             }
-            cout << endl << "Complete!" << endl;
-        }
-        else 
-        {
-            cout << endl << "File not found!" << endl;
         }
         fin.close();
     }
@@ -259,11 +254,6 @@ public:
                     << n[i].text << ' ' << n[i].d.day << ' ' 
                     << n[i].d.month << ' ' << n[i].d.year << endl;
             }
-            cout << endl << "Complete!" << endl;
-        }
-        else 
-        {
-            cout << endl << "File not found!" << endl;
         }
         
         fout.close();
@@ -303,7 +293,7 @@ int main() {
         cout << "   7 - поиск минимального значения;" << endl;
         cout << "   8 - отсортировать массив;" << endl;
         cout << "   9 - прочитать txt-file;" << endl;
-        cout << "   10 - ввести txt-file." << endl;
+        cout << "   0 - записать txt-file." << endl;
         cout << "Ваш ответ: "; 
         cin >> v;
         cout << endl;
@@ -445,7 +435,7 @@ int main() {
             }
 
             // Функция по записи txt файла
-            case '0':
+            case 0:
             {
                 linesDatabase.write_file();
                 break;
