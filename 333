@@ -1,0 +1,270 @@
+/*  Вариант 7   */
+/*
+    Односвязный список.
+
+    Алгоритмы:
+        (done) Создание списка
+        (done) Добавление элемента в конец списка
+        (done) Добавление элемента в начало списка
+        (done) Удаление конечного элемента списка
+        (done)  Удаление начального элемента списка
+        (done) Поиск элемента по заданному значению поля структуры
+        (done) Добавление элемента после найденного
+        (done) Удаление найденного элемента.
+ 
+    Использовать указатели
+*/
+
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <tuple>
+using namespace std;
+
+struct Data{
+    char Name[64];
+    int Price;
+    int Quantity;
+    int Percentage;
+};
+
+struct Node{
+    Node *next;
+    Data TempData;
+};
+
+class SingleList{
+    private:
+        Node *start;
+    public:
+        SingleList(){
+            start = NULL; //объявляем, что первого эл-та еще нет
+        }
+
+
+        void AddElementEnd(Data Values){
+            Node *newNode = new Node;
+            newNode->TempData = Values;
+            newNode->next = NULL;
+            if (start == NULL){
+                start = newNode;
+            }
+            else{
+                Node *recent = start;
+                while(recent->next != NULL){
+                    recent = recent->next;
+                }
+                recent->next = newNode;
+            }
+        }
+
+
+        void AddElementStart(Data Values){
+            Node *newNode = new Node;
+            newNode->TempData = Values;
+
+            newNode->next = start;
+            start = newNode;
+        }
+
+
+        void DelElementEnd(){
+            Node *recent = start;
+            Node *moreRecent = start;
+            while(recent->next != NULL){
+                moreRecent = recent;
+                recent = recent->next;
+            }
+            moreRecent->next = NULL;
+        }
+
+
+        void DelElementStart(){
+            Node *recent = start->next;
+            start = recent;
+        }
+
+        template<int I>
+        int SearchInts(int search){
+            Node *recent = start;
+
+            int i = 0;
+            while(recent->next != NULL){
+                int value = get<I>(tie(recent->TempData.Price, recent->TempData.Percentage, recent->TempData.Quantity));
+                if (value == search){
+                    break;
+                }
+                else{
+                    i++;
+                    recent = recent->next;
+                }
+            }
+            return i;
+        }
+
+
+        int SearchString(char* search){
+            Node *recent = start;
+            
+            int i = 0;
+            while(recent->next != NULL){
+                char* value = recent->TempData.Name;
+                if (strcmp(value, search) == 0){
+                    break;
+                }
+                else{
+                    i++;
+                    recent = recent->next;
+                }
+            }
+            return i;
+        }
+
+
+        void InsertAfterFound(int index, Data InsData){
+            Node *recent = start;
+            Node *InsertNode = new Node;
+            InsertNode->TempData = InsData;
+            for (int i = 0; i < index; i++){
+                recent = recent->next;
+            }
+            InsertNode->next = recent->next;
+            recent->next = InsertNode;
+        }
+
+
+        void DeleteFound(int index){
+            Node *recent = start;
+            Node *preRecent = start;
+            if(index != 0){
+                for (int i = 0; i < index; i++){
+                    preRecent = recent;
+                    recent = recent->next;
+                }
+                preRecent->next = recent->next;
+            }
+            else{
+                start = recent->next;
+            }
+        }
+
+
+        vector <Data> PrintAll(){
+            vector <Data> temp;
+            Node *recent = start;
+            while(recent != NULL)
+            {
+                Data ExitData = recent->TempData;
+                recent = recent->next;
+                temp.push_back(ExitData);
+            }
+            return temp;
+        }
+};
+
+int main()
+{
+    int choice;
+    int index;
+    Data TempData;
+    SingleList myList;
+
+    cout << "Available Tools:" << endl;
+    cout << "  1. Print nodes" << endl;
+    cout << "  2. Insert in tail" << endl;
+    cout << "  3. Insert in head" << endl;
+    cout << "  4. Delete tail element" << endl;
+    cout << "  5. Delete head element" << endl;
+    cout << "  6. Search tools" << endl;
+    do {
+        cout << "Choose Tool (1-11) or 0 to help:";
+        cin >> choice;
+        switch(choice){
+            int index;
+            case 0:
+                cout << "Available Tools:" << endl;
+                cout << "  1. Print All" << endl;
+                cout << "  2. Insert in tail" << endl;
+                cout << "  3. Insert in head" << endl;
+                cout << "  4. Delete tail element" << endl;
+                cout << "  5. Delete head element" << endl;
+                cout << "  6. Search tools" << endl;
+                break;
+            case 1:
+                for (int i = 0; i < myList.PrintAll().size(); i++){
+                    TempData = myList.PrintAll()[i];
+                    cout << "   " << TempData.Name << " " << TempData.Percentage << " " << TempData.Price << " " << TempData.Quantity << endl;
+                }
+                break;
+            case 2:
+                cout << "   Name:"; cin >> TempData.Name;
+                cout << "   Price:"; cin >> TempData.Price;
+                cout << "   Percentage:"; cin >> TempData.Percentage;
+                cout << "   Quantity:"; cin >> TempData.Quantity;
+                myList.AddElementEnd(TempData);
+                break;
+            case 3:
+                cout << "   Name:"; cin >> TempData.Name;
+                cout << "   Price:"; cin >> TempData.Price;
+                cout << "   Percentage:"; cin >> TempData.Percentage;
+                cout << "   Quantity:"; ; cin >> TempData.Quantity;
+                myList.AddElementStart(TempData);
+                break;
+            case 4:
+                myList.DelElementEnd();
+                cout << "   Tail element deleted." << endl;
+                break;
+            case 5:
+                myList.DelElementStart();
+                cout << "   Head element deleted." << endl;
+                break;
+            case 6:
+                char *searchStr;
+                int searchInt;
+                Node PreFoundNode;
+
+                cout << "   Enter index of element to find (0-3)"; cin >> index;
+
+                int foundIndex;
+                switch(index){
+                    case 0:
+                        cout << "       Enter search:"; cin >> searchStr;
+                        foundIndex = myList.SearchString(searchStr);
+                        break;
+                    case 1:
+                        cout << "       Enter search:"; cin >> searchInt;
+                        foundIndex = myList.SearchInts<0>(searchInt);
+                        break;
+                    case 2:
+                        cout << "       Enter search:"; cin >> searchInt;
+                        foundIndex = myList.SearchInts<1>(searchInt);
+                        break;
+                    case 3:
+                        cout << "       Enter search:"; cin >> searchInt;
+                        foundIndex = myList.SearchInts<2>(searchInt);
+                        break;
+                }
+
+                cout << "   Done. Select what to do with found element." << endl;
+                cout << "   Search Tools:" << endl;
+                cout << "     7. Insert after found element" << endl;
+                cout << "     8. Delete found element" << endl;
+                break;
+            case 7:
+                cout << "   Enter incerting data" << endl;
+                cout << "   Name:"; cin >> TempData.Name;
+                cout << "   Price:"; cin >> TempData.Price;
+                cout << "   Percentage:"; cin >> TempData.Percentage;
+                cout << "   Quantity:"; ; cin >> TempData.Quantity;
+                myList.InsertAfterFound(foundIndex, TempData);
+                break;
+            case 8:
+                myList.DeleteFound(foundIndex);
+                cout << "       Deleted." << endl;
+                break;
+            default:
+                break;
+        }
+    }while(true);
+    return 0;
+}
