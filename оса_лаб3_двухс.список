@@ -1,0 +1,257 @@
+
+/*
+    Двухсвязный список.
+
+    Алгоритмы:
+        (done) Создание списка
+        (done) Добавление элемента в конец списка
+        (done) Добавление элемента в начало списка
+        (done) Удаление конечного элемента списка
+        (done) Удаление начального элемента списка
+        (done) Поиск элемента по заданному значению поля структуры
+        (done) Добавление элемента после найденного
+        (done) Удаление найденного элемента.
+
+    Использовать указатели
+*/
+
+#include <iostream>
+#include <vector>
+#include <cstring>
+#include <tuple>
+using namespace std;
+
+struct Data{
+    int Registration;
+    char Brand[20];
+    int Mileage;
+};
+
+struct Node{
+    Node *next, *prev;
+    Data TempData;
+};
+
+class List{
+    private:
+        Node *head, *tail;
+    public:
+        List(){
+            head = NULL; //объявляем, что первого эл-та еще нет
+            tail = NULL;
+        }
+
+
+        vector <Data> PrintList(){
+            vector <Data> temp;
+            Node *recent = head;
+            while(recent != NULL)
+            {
+                Data ExitData = recent->TempData;
+                recent = recent->next;
+                temp.push_back(ExitData);
+            }
+            return temp;
+        }
+
+
+        void AddElementEnd(Data Temp){
+            Node *AddedNode = new Node;
+            AddedNode->TempData = Temp;
+            AddedNode->next = NULL;
+            if (head == NULL){
+                AddedNode->prev = NULL;
+                head = AddedNode;
+                tail = AddedNode;
+            }
+            else{
+                tail->next = AddedNode;
+                AddedNode->prev = tail;
+                AddedNode->next = NULL;
+                tail = AddedNode;
+            }
+        }
+
+
+        void AddElementStart(Data Temp){
+            Node *newNode = new Node;
+            newNode->TempData = Temp;
+            if (head == NULL){
+                newNode->next = NULL;
+                newNode->prev = NULL;
+                head = newNode;
+                tail = newNode;
+            }
+            else{
+                newNode->next = head;
+                head->prev = newNode;
+                head = newNode;
+            }
+        }
+
+
+        void DelElementEnd(){
+            if (tail->prev != NULL){
+                tail = tail->prev;
+                tail->next = NULL; 
+            }
+            else{
+                tail->next = NULL;
+                tail = NULL;
+                head = tail;
+            }
+        }
+
+        
+        void DelElementStart(){
+            if (head->next != NULL){
+                head = head->next;
+                head->prev = NULL;
+            }
+            else{
+                head->prev = NULL;
+                head = NULL;
+                tail = head;
+            }
+        }
+
+        int SearchInts(int search){
+            Node *recent = head;
+
+            int i = 0;
+            while(recent->next != NULL){
+                int value = recent->TempData.Registration;
+                if (value == search){
+                    break;
+                }
+                else{
+                    i++;
+                    recent = recent->next;
+                }
+            }
+            return i;
+        }
+
+        void InsertAfterFound(int index, Data InsData){
+            Node *recent = head;
+            Node *InsertNode = new Node;
+            InsertNode->TempData = InsData;
+            for (int i = 0; i < index; i++){
+                recent = recent->next;
+            }
+            if (recent->next != NULL){
+                InsertNode->next = recent->next;
+                InsertNode->prev = recent;
+                recent->next->prev = InsertNode;
+                recent->next = InsertNode;
+            }
+            else{
+                recent->next = InsertNode;
+                InsertNode->next = NULL;
+                InsertNode->prev = recent;
+                tail = InsertNode;
+            }
+        }
+
+
+        void DeleteFound(int index){
+            Node *recent = head;
+            Node *preRecent = head;
+            if(index != 0){
+                for (int i = 0; i < index; i++){
+                    preRecent = recent;
+                    recent = recent->next;
+                }
+                preRecent->next = recent->next;
+                recent->next->prev = preRecent;
+            }
+            else{
+                head = recent->next;
+                recent->next->prev = NULL;
+            }
+        }
+};
+
+
+
+int main()
+{
+    int choice;
+    int index;
+    Data TempData;
+    List lst;
+
+    cout << "Доступные операции:" << endl;
+                cout << "  1. Вывести весь список" << endl;
+                cout << "  2. Добавить запись в конец" << endl;
+                cout << "  3. Добавить запись в начало" << endl;
+                cout << "  4. Удалить последнюю запись" << endl;
+                cout << "  5. Удалить первую запись" << endl;
+                cout << "  6. Функции поиска" << endl;
+    do {
+        cout << "Введите необходимую операцию (1-8) или 0, чтобы вернуться к списку: ";
+        cin >> choice;
+        switch(choice){
+            int index;
+            case 0:
+                cout << "Доступные операции:" << endl;
+                cout << "  1. Вывести весь список" << endl;
+                cout << "  2. Добавить запись в конец" << endl;
+                cout << "  3. Добавить запись в начало" << endl;
+                cout << "  4. Удалить последнюю запись" << endl;
+                cout << "  5. Удалить первую запись" << endl;
+                cout << "  6. Функции поиска" << endl;
+                break;
+            case 1:
+                for (int i = 0; i < lst.PrintList().size(); i++){
+                    TempData = lst.PrintList()[i];
+                    cout << "   " << TempData.Registration << " " << TempData.Brand << " " << TempData.Mileage << endl;
+                }
+                break;
+            case 2:
+                cout << "   Регистрационный номер: "; cin >> TempData.Registration;
+                cout << "   Марка: "; cin >> TempData.Brand;
+                cout << "   Пробег: "; cin >> TempData.Mileage;
+                lst.AddElementEnd(TempData);
+                break;
+            case 3:
+                cout << "   Регистрационный номер: "; cin >> TempData.Registration;
+                cout << "   Марка: "; cin >> TempData.Brand;
+                cout << "   Пробег: "; cin >> TempData.Mileage;
+                lst.AddElementStart(TempData);
+                break;
+            case 4:
+                lst.DelElementEnd();
+                cout << "   Последний элемент удален" << endl;
+                break;
+            case 5:
+                lst.DelElementStart();
+                cout << "   Первый элемент удален" << endl;
+                break;
+             case 6:
+                int searchInt;
+                int foundIndex;
+                cout << "       Введите регистрационный номер: "; cin >> searchInt;
+                foundIndex = lst.SearchInts(searchInt);
+                cout << "   Задача выполнена. Выберите, что необходимо сделать дальше: " << endl;
+                cout << "   Функции поиска:" << endl;
+                cout << "     7. Добавить строку после найденной" << endl;
+                cout << "     8. Удалить найденнуб строку" << endl;
+                break;
+            case 7:
+                cout << "   Введите новую строку" << endl;
+                cout << "   Регистрационный номер: "; cin >> TempData.Registration;
+                cout << "   Марка: "; cin >> TempData.Brand;
+                cout << "   Пробег:"; cin >> TempData.Mileage;
+                lst.InsertAfterFound(foundIndex, TempData);
+                break;
+            case 8:
+                lst.DeleteFound(foundIndex);
+                cout << "       Элемент удален" << endl;
+                break;
+            default:
+                break;
+        }
+    }while(true);
+    return 0;
+}
