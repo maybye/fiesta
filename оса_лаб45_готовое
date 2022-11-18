@@ -1,0 +1,344 @@
+#include <iostream>
+#include<string> 
+#include<vector>
+#include<fstream>
+#include<type_traits>
+using namespace std;
+
+inline void hash_combine(std::size_t& seed) { }
+template <typename T, typename... Rest>
+inline void hash_combine(std::size_t& seed, const T& v, Rest... rest)
+{
+    std::hash<T> hasher;
+    seed ^= hasher(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    hash_combine(seed, rest...);
+}
+struct MyStruct
+{
+    int a;
+    string b;
+
+    MyStruct(int newA, string newB)
+    {
+        a = newA;
+        b = newB;
+    }
+    void Debug()
+    {
+        cout << "A - " + a << endl;
+        cout << "B is " + b << endl;
+    }
+};
+struct NotHashableStruct
+{
+
+};
+namespace std
+{
+    template<>
+    struct hash<MyStruct>
+    {
+        size_t operator()(const MyStruct& key)
+        {
+            size_t newHash;
+            hash_combine(newHash, key.a, key.b);
+            return newHash;
+        }
+    };
+}
+
+template <typename Data>
+struct TreeElement
+{
+public:
+    Data* data;
+    int dataHash;
+
+    TreeElement<Data>* rightElement = NULL;
+    TreeElement<Data>* leftElement = NULL;
+    hash<Data> myHash;
+
+    TreeElement(Data newData)
+    {
+        data = new Data(newData);
+        dataHash = myHash(*data);
+    }
+};
+
+template <typename Data>
+struct BinaryTree
+{
+public:
+    TreeElement<Data>* treeRoot;
+    int count;
+
+    BinaryTree()
+    {
+        treeRoot = NULL;
+        count = 0;
+    }
+    void Add(Data newData)
+    {
+        TreeElement<Data>* newElement = new TreeElement<Data>(newData);
+        if (count == 0)
+        {
+            treeRoot = newElement;
+            count++;
+        }
+        else
+        {
+            TreeElement<Data>* currentElement = treeRoot;
+            while (true)
+            {
+                if (newElement->dataHash < currentElement->dataHash)
+                {
+                    if (currentElement->leftElement == NULL)
+                    {
+                        currentElement->leftElement = newElement;
+                        count++;
+                        return;
+                    }
+                    else
+                    {
+                        currentElement = currentElement->leftElement;
+                    }
+                }
+                else if (newElement->dataHash > currentElement->dataHash)
+                {
+                    if (currentElement->rightElement == NULL)
+                    {
+                        currentElement->rightElement = newElement;
+                        count++;
+                        return;
+                    }
+                    else
+                    {
+                        currentElement = currentElement->rightElement;
+                    }
+                }
+                else if (newElement->dataHash == currentElement->dataHash)
+                {
+                    throw invalid_argument("Невозможно добавить данный элемент, т.к. он уже существует.");
+                    return;
+                }
+            }
+        }
+    }
+    bool CheckIfContains(Data data)
+    {
+        if (count == 0)
+        {
+            throw invalid_argument("Дерево пусто!");
+        }
+
+        TreeElement<Data>* newElement = new TreeElement<Data>(data);
+        TreeElement<Data>* currentElement = treeRoot;
+        while (true)
+        {
+            if (newElement->dataHash < currentElement->dataHash)
+            {
+                currentElement = currentElement->leftElement;
+            }
+            else if (newElement->dataHash > currentElement->dataHash)
+            {
+                currentElement = currentElement->rightElement;
+            }
+            else if (newElement->dataHash == currentElement->dataHash)
+            {
+                return true;
+            }
+            if (currentElement == NULL)
+            {
+                return false;
+            }
+        }
+    }
+    TreeElement<Data>* GetTreeElementByData(Data data)
+    {
+        if (count == 0)
+        {
+            throw invalid_argument("Дерево пусто!");
+        }
+
+        TreeElement<Data>* newElement = new TreeElement<Data>(data);
+        TreeElement<Data>* currentElement = treeRoot;
+        while (true)
+        {
+            if (newElement->dataHash < currentElement->dataHash)
+            {
+                currentElement = currentElement->leftElement;
+            }
+            else if (newElement->dataHash > currentElement->dataHash)
+            {
+                currentElement = currentElement->rightElement;
+            }
+            else if (newElement->dataHash == currentElement->dataHash)
+            {
+                return currentElement;
+            }
+            if (currentElement == NULL)
+            {
+                return NULL;
+            }
+        }
+    }
+    vector<Data> GetVector()
+    {
+        vector<Data>* binaryTreeVector = new vector<Data>();
+        binaryTreeVector->push_back(*treeRoot->data);
+        AddChildren(treeRoot, binaryTreeVector);
+        return *binaryTreeVector;
+    }
+    void AddChildren(TreeElement<Data>* element, vector<Data>* treeVector)
+    {
+        if (element->leftElement != NULL)
+        {
+            treeVector->push_back(*element->leftElement->data);
+            AddChildren(element->leftElement, treeVector);
+        }
+        if (element->rightElement != NULL)
+        {
+            treeVector->push_back(*element->rightElement->data);
+            AddChildren(element->rightElement, treeVector);
+        }
+    }
+    void DeleteItem(Data data)
+    {
+        if (count == 0)
+        {
+            throw invalid_argument("Дерево пусто!");
+        }
+        else
+        {
+            TreeElement<Data>* elementToDelete = new TreeElement<Data>(data);
+            treeRoot = DeleteElement(treeRoot, elementToDelete);
+        }
+    }
+    TreeElement<Data>* DeleteElement(TreeElement<Data>* currentElement, TreeElement<Data>* elementToDelete)
+    {
+        if (currentElement->dataHash == elementToDelete->dataHash)
+        {
+            if (currentElement->leftElement == NULL && currentElement->rightElement == NULL)
+            {
+                delete currentElement->data;
+                return NULL;
+            }
+            else if (currentElement->leftElement != NULL && currentElement->rightElement == NULL)
+            {
+                return currentElement->leftElement;
+            }
+            else if (currentElement->leftElement == NULL && currentElement->rightElement != NULL)
+            {
+                return currentElement->rightElement;
+            }
+            else
+            {
+                TreeElement<Data>* minElementInRightTree = FindMinChild(currentElement->rightElement);
+                currentElement->data = new Data(*minElementInRightTree->data);
+                currentElement->dataHash = minElementInRightTree->dataHash;
+                currentElement->rightElement = DeleteElement(currentElement->rightElement, minElementInRightTree);
+                return currentElement;
+            }
+        }
+        else
+        {
+            if (currentElement->dataHash > elementToDelete->dataHash)
+            {
+                if (currentElement->leftElement == NULL)
+                {
+                    throw invalid_argument("There is no such element in the tree");
+                    return currentElement;
+                }
+                else
+                {
+                    currentElement->leftElement = DeleteElement(currentElement->leftElement, elementToDelete);
+                    return currentElement;
+                }
+            }
+            if (currentElement->dataHash < elementToDelete->dataHash)
+            {
+                if (currentElement->rightElement == NULL)
+                {
+                    return currentElement;
+                }
+                else
+                {
+                    currentElement->rightElement = DeleteElement(currentElement->rightElement, elementToDelete);
+                    return currentElement;
+                }
+            }
+        }
+    }
+    TreeElement<Data>* FindMinChild(TreeElement<Data>* element)
+    {
+        if (element->leftElement == NULL)
+        {
+            return element;
+        }
+        else
+        {
+            return FindMinChild(element->leftElement);
+        }
+    }
+};
+
+
+int main()
+{
+    BinaryTree<int>* tree = new BinaryTree<int>();
+    int Countinue = 1;
+    while (Countinue == 1)
+    {
+        cout << endl;
+        cout << "-------------------------------------------" << endl;
+        cout << "Возможные операции:" << endl;
+        cout << "1 добавить элемент в дерево" << endl
+        << "2 проверить, содержит ли дерево данный элемент" << endl
+        << "3 удалить элемент из дерева" << endl
+        << "4 вывести все дерево в консоль" << endl;
+        cout << endl;
+        int userChoice;
+        cout << "Введите номер операции: ";
+        cin >> userChoice;
+
+        int newElement;
+        try 
+        {
+            switch (userChoice)
+            {
+            case 1:
+                cout << "Введите элемент, который необходимо добавить: ";
+                cin >> newElement;
+                tree->Add(newElement);
+                break;
+            case 2:
+                cout << "Введите элемент, который необходимо найти: ";
+                cin >> newElement;
+                cout << to_string(tree->CheckIfContains(newElement));
+                cout << endl;
+                break;
+            case 3:
+                cout << "Введите элемент, который необходимо удалить: ";
+                cin >> newElement;
+                tree->DeleteItem(newElement);
+                break;
+            case 4:
+                cout << "Полученное бинарное дерево: ";
+                vector<int> newVector = tree -> GetVector();
+                for (int element : newVector)
+                {
+                    cout << element << " ";
+                }
+                cout << endl;
+                break;
+            }
+        }
+        catch (invalid_argument& exeption)
+        {
+            cout << exeption.what() << endl;
+        }
+        cout << endl;
+        cout << "Продолжить? (1/0): ";
+        cin >> Countinue;
+    }
+}
