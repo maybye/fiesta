@@ -1,0 +1,245 @@
+#include <iostream>
+#include<string> 
+#include<vector>
+#include<fstream>
+#include<type_traits>
+#include <limits>
+using namespace std;
+
+const int infinity = std::numeric_limits<int>::max();
+
+void CoutSquareMatrix(int** matrix, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+class Graph 
+{
+private:
+    int vertexCount;
+    int edgesCount;
+    int** weightMatrix;
+
+    int startVertex;
+    int finishVertex;
+
+    int* minWeight;
+    int* isMarkFixed;
+    int* vonPunckt;
+public:
+    Graph(int** newWeightMatrix, int newVertexCount) //Generate new graph with user's weight matrix
+    {
+        vertexCount = newVertexCount;
+        edgesCount = 0;
+        startVertex = 0;
+        finishVertex = 0;
+
+        minWeight = new int[vertexCount];
+        isMarkFixed = new int[vertexCount];
+        vonPunckt = new int[vertexCount];
+
+        weightMatrix = new int* [vertexCount];
+        for (int i = 0; i < vertexCount; i++)
+        {
+            weightMatrix[i] = new int[vertexCount];
+        }
+        for (int i = 0; i < vertexCount; i++)
+        {
+            for (int j = 0; j < vertexCount; j++)
+            {
+                if (newWeightMatrix[i][j] != 0)
+                {
+                    weightMatrix[i][j] = newWeightMatrix[i][j];
+                }
+                else 
+                {
+                    weightMatrix[i][j] = infinity;
+                }
+            }
+        }
+        for (int i = 0; i < vertexCount; i++) 
+        {
+            for (int j = 0; j < vertexCount; j++)
+            {
+                if (weightMatrix[i][j] != infinity)
+                {
+                    edgesCount++;
+                }
+            }
+        }
+    }
+    bool AllVertexesVisited() 
+    {
+        for (int i = 0; i < vertexCount; i++)
+        {
+            if (isMarkFixed[i] == 0) 
+            {
+                return false;
+            }
+        }
+        return true;
+        
+    }
+    void CalculateMinRoute(int newStartVertex, int newFinishVertex)
+    {
+        startVertex = newStartVertex;
+        finishVertex = newFinishVertex;
+        for (int i = 0; i < vertexCount; i++) 
+        {
+            isMarkFixed[i] = 0;
+            vonPunckt[i] = startVertex;
+            minWeight[i] = weightMatrix[startVertex][i];
+        }
+        isMarkFixed[startVertex] = 1;
+        vonPunckt[startVertex] = -1;
+
+        while (AllVertexesVisited() == false)
+        {
+            AnalyzeVertex();
+        }
+    }
+    int GetShortestDistanceFromStartToFinish() 
+    {
+        return minWeight[finishVertex];
+    }
+    int GetMinUnvisited() 
+    {
+        int minMarkWeight = infinity;
+        int vertexWithMinimalWeight;
+        for (int i = 0; i < vertexCount; i++) 
+        {
+            if (isMarkFixed[i] == 0 && minWeight[i] < minMarkWeight)
+            {
+                vertexWithMinimalWeight = i;
+                minMarkWeight = minWeight[i];
+            }
+        }
+        return vertexWithMinimalWeight;
+    }
+    vector<int> GetMinRoute() 
+    {
+        vector<int> route;
+        route.push_back(finishVertex);
+        int z = vonPunckt[finishVertex];
+        do 
+        {
+          route.push_back(z);
+          z = vonPunckt[z];
+        } while (z != -1);
+        return route;
+    }
+    void AnalyzeVertex() 
+    {
+        int vertexToAnalyze = GetMinUnvisited();
+        isMarkFixed[vertexToAnalyze] = 1;
+        for (int j = 0; j < vertexCount; j++) 
+        {
+            if (weightMatrix[vertexToAnalyze][j] < infinity && isMarkFixed[j] == 0) 
+            {
+                if (minWeight[j] > minWeight[vertexToAnalyze] + weightMatrix[vertexToAnalyze][j]) 
+                {
+                    minWeight[j] = minWeight[vertexToAnalyze] + weightMatrix[vertexToAnalyze][j];
+                    vonPunckt[j] = vertexToAnalyze;
+                }
+            }
+        }
+    }
+};
+vector<int> ParseStringToIntegers(string stringToParse) 
+{
+    stringToParse += ' ';
+    vector<int> integers;
+    string newIntString = "";
+    int newInt;
+    for (int i = 0; i < stringToParse.size(); i++) 
+    {
+        if (stringToParse[i] != ' ')
+        {
+            newIntString += stringToParse[i];
+        }
+        else if (stringToParse[i] == ' ' && newIntString != "")
+        {
+            newInt = stoi(newIntString);
+            integers.push_back(newInt);
+            newIntString = "";
+        }
+    }
+    return integers;
+}
+int** ReadWeightMatrixFromFile(string fileName, int& vertexCount)
+{
+    ifstream inputStream;
+    inputStream.open(fileName + ".txt");
+
+    string newString;
+    getline(inputStream, newString);
+
+    int vertexNumber = ParseStringToIntegers(newString)[0];
+
+    int** weightMatrix;
+    weightMatrix = new int* [vertexNumber];
+    for (int i = 0; i < vertexNumber; i++)
+    {
+        weightMatrix[i] = new int[vertexNumber];
+    }
+     
+    int str = 0;
+    while (getline(inputStream, newString))
+    {
+        vector<int> integersString = ParseStringToIntegers(newString);
+        for (int j = 0; j < vertexNumber; j++)
+        {
+            weightMatrix[str][j] = integersString[j];
+        }
+        str++;
+    }
+    vertexCount = vertexNumber;
+    return weightMatrix;
+}
+
+
+int main()
+{
+    int startPosition;
+    int finishPosition;
+
+    int graphVertexCount;
+    int** graphWeightMatrix = ReadWeightMatrixFromFile("Graph", graphVertexCount);
+    CoutSquareMatrix(graphWeightMatrix, 5);
+    Graph* graph = new Graph(graphWeightMatrix, graphVertexCount);
+    while (true)
+    {
+        cout << endl;
+        cout << "Enter start position and finish position to get the shortest route" << endl;
+        cout << "Start position: ";
+        cin >> startPosition;
+        cout << "Finish position: ";
+        cin >> finishPosition;
+
+        if (startPosition > graphVertexCount || startPosition < 0 || finishPosition > graphVertexCount || finishPosition < 0)
+        {
+            cout << "Wrong format! Try again!" << endl;
+            continue;
+        }
+        graph->CalculateMinRoute(startPosition, finishPosition);
+        vector<int> route = graph->GetMinRoute();
+        cout << "Shortest route is " << endl;
+        for (int i = route.size() - 1; i >= 0; i--) 
+        {
+            if (i > 0)
+                cout << route[i] << "->";
+            else
+                cout << route[i];
+        }
+        cout << endl;
+        cout << "it's length - " << graph->GetShortestDistanceFromStartToFinish() << endl;
+        cout << endl;
+    }
+}
