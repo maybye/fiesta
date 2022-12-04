@@ -1,0 +1,291 @@
+#include <iostream>
+#include<string> 
+#include<vector>
+#include<fstream>
+#include <limits>
+#include<type_traits>
+using namespace std;
+
+const int infinity = std::numeric_limits<int>::max();
+struct Queue
+{
+private:
+    int head;
+    int tail;
+    int* elements;
+    int queueLength;
+    int count;
+public:
+    Queue(int length)
+    {
+        elements = new int[length + 1];
+        queueLength = length + 1;
+        head = 0;
+        tail = 0;
+        count = 0;
+    }
+    ~Queue()
+    {
+        delete[] elements;
+    }
+    void Push(int value)
+    {
+        if ((tail + 1) % queueLength == head)
+        {
+            throw invalid_argument("Error! Queue overflow.");
+        }
+        else
+        {
+            elements[tail] = value;
+            tail = (tail + 1) % queueLength;
+            count++;
+        }
+    }
+    int Pop()
+    {
+        if (head != tail)
+        {
+            int returnValue = elements[head];
+            head = (head + 1) % queueLength;
+            count--;
+            return returnValue;
+        }
+        else
+        {
+            throw invalid_argument("Error! Queue is empty.");
+        }
+    }
+    int GetCount() 
+    {
+        return count;
+    }
+};
+class Graph
+{
+private:
+    int vertexCount;
+    int edgesCount;
+    int** graphMatrix;
+
+    int startVertex;
+    int finishVertex;
+
+    int* visited;
+    int* rang;
+
+public:
+    vector<int> minRoute;
+    Graph(int** newWeightMatrix, int newVertexCount) //Generate new graph with user's weight matrix
+    {
+        vertexCount = newVertexCount;
+        startVertex = 0;
+        finishVertex = 0;
+
+        visited = new int[vertexCount];
+        rang = new int[vertexCount];;
+
+        graphMatrix = new int* [vertexCount];
+        for (int i = 0; i < vertexCount; i++)
+        {
+            graphMatrix[i] = new int[vertexCount];
+        }
+        for (int i = 0; i < vertexCount; i++)
+        {
+            for (int j = 0; j < vertexCount; j++)
+            {
+                if (newWeightMatrix[i][j] != 0)
+                {
+                    graphMatrix[i][j] = newWeightMatrix[i][j];
+                }
+                else
+                {
+                    graphMatrix[i][j] = infinity;
+                }
+            }
+        }
+
+        for (int i = 0; i < vertexCount; i++)
+        {
+            visited[i] = 0;
+        }
+        for (int i = 0; i < vertexCount; i++)
+        {
+            rang[i] = -1;
+        }
+    }
+    void CalculateBFS(int start, int finish)
+    {
+        startVertex = start;
+        finishVertex = finish;
+
+        Queue* queue = new Queue(100);
+        queue->Push(start);
+        visited[start] = 1;
+        rang[start] = 0;
+        while (queue->GetCount() > 0)
+        {
+            int analyzingVertex = queue->Pop();
+            for (int i = 0; i < vertexCount; i++)
+            {
+                if (graphMatrix[analyzingVertex][i] < infinity && visited[i] == 0) // if neightbor, non visited, 
+                {
+                    queue->Push(i);
+                    visited[i] = true;
+                    rang[i] = rang[analyzingVertex] + 1;
+                    if (i == finish)
+                    {
+                        CalculateMinRoute();
+                        //return;
+                    }
+                }
+            }
+        }
+    }
+    void CalculateMinRoute()
+    {
+        int current = finishVertex;
+        int previous;
+        while (current != startVertex)
+        {
+            minRoute.push_back(current); 
+            previous = GetNearestPreviousVertex(current); 
+            current = GetNearestPreviousVertex(current); 
+        }
+        minRoute.push_back(startVertex);
+    }
+    int GetNearestPreviousVertex(int vertex) 
+    {
+        for (int i = 0; i < vertexCount; i++)
+        {
+            if (graphMatrix[vertex][i] < infinity && rang[i] < rang[vertex] && rang[i] > -1)
+            {
+                return i;
+            }
+        }
+        return -1;
+    }
+    vector<int> GetRang()
+    {
+        vector<int> vertexesRang;
+        for (int i = 0; i < vertexCount; i++)
+        {
+            vertexesRang.push_back(rang[i]);
+        }
+        return vertexesRang;
+    }
+};
+
+void CoutSquareMatrix(int** matrix, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+vector<int> ParseStringToIntegers(string stringToParse)
+{
+    stringToParse += ' ';
+    vector<int> integers;
+    string newIntString = "";
+    int newInt;
+    for (int i = 0; i < stringToParse.size(); i++)
+    {
+        if (stringToParse[i] != ' ')
+        {
+            newIntString += stringToParse[i];
+        }
+        else if (stringToParse[i] == ' ' && newIntString != "")
+        {
+            newInt = stoi(newIntString);
+            integers.push_back(newInt);
+            newIntString = "";
+        }
+    }
+    return integers;
+}
+
+int** ReadWeightMatrixFromFile(string fileName, int& vertexCount)
+{
+    ifstream inputStream;
+    inputStream.open(fileName + ".txt");
+
+    string newString;
+    getline(inputStream, newString);
+
+    int vertexNumber = ParseStringToIntegers(newString)[0];
+
+    int** weightMatrix;
+    weightMatrix = new int* [vertexNumber];
+    for (int i = 0; i < vertexNumber; i++)
+    {
+        weightMatrix[i] = new int[vertexNumber];
+    }
+
+    int str = 0;
+    while (getline(inputStream, newString))
+    {
+        vector<int> integersString = ParseStringToIntegers(newString);
+        for (int j = 0; j < vertexNumber; j++)
+        {
+            weightMatrix[str][j] = integersString[j];
+        }
+        str++;
+    }
+    vertexCount = vertexNumber;
+    return weightMatrix;
+}
+int main()
+{
+    int startPosition;
+    int finishPosition;
+    int readable  = 1;
+    int graphVertexCount;
+    int** graphWeightMatrix = ReadWeightMatrixFromFile("Graph", graphVertexCount);
+    CoutSquareMatrix(graphWeightMatrix, graphVertexCount);
+
+    while (true)
+    {
+        Graph* graph = new Graph(graphWeightMatrix, graphVertexCount);
+        cout << endl;
+        cout << "Enter start position and finish position to get the shortest route" << endl;
+        cout << "Start position: ";
+        cin >> startPosition;
+        startPosition -= readable;
+        cout << "Finish position: ";
+        cin >> finishPosition;
+        finishPosition-= readable;
+
+        if (startPosition > graphVertexCount || startPosition < 0 || finishPosition > graphVertexCount || finishPosition < 0)
+        {
+            cout << "Wrong format! Try again!" << endl;
+            continue;
+        }
+        graph->CalculateBFS(startPosition, finishPosition);
+        
+        vector<int> route = graph->minRoute;
+        vector<int> rang = graph->GetRang();
+        
+        cout << "Rangs of vertexes - ";
+        for (int i = 0; i < graphVertexCount; i++) 
+        {
+            cout << rang[i] << " ";
+        }
+        cout << endl;
+        cout << "Shortest route is " << endl;
+        for (int i = route.size()-1; i >= 0; i--)
+        {
+            if (i > 0)
+                cout << route[i] + readable << "->";
+            else
+                cout << route[i] + readable;
+        }
+        cout << endl;
+        cout << "it's length - " << route.size() << endl;
+        cout << endl;
+    }
+}
