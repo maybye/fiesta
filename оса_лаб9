@@ -1,0 +1,180 @@
+#include <iostream>
+#include<string> 
+#include<vector>
+#include<fstream>
+#include<type_traits>
+using namespace std;
+
+
+class Graph
+{
+private:
+    int vertexCount;
+    int** graphMatrix;
+
+    int startVertex;
+    int finishVertex;
+
+    int* visited;
+    int* inStack;
+public:
+
+    Graph(int** newWeightMatrix, int newVertexCount) //Generate new graph with user's weight matrix
+    {
+        vertexCount = newVertexCount;
+        startVertex = 0;
+        finishVertex = 0;
+
+        visited = new int[vertexCount];
+        inStack = new int[vertexCount];
+
+        graphMatrix = new int* [vertexCount];
+
+        for (int i = 0; i < vertexCount; i++)
+        {
+            graphMatrix[i] = new int[vertexCount];
+        }
+
+        for (int i = 0; i < vertexCount; i++)
+        {
+            for (int j = 0; j < vertexCount; j++)
+            {
+                graphMatrix[i][j] = newWeightMatrix[i][j];
+            }
+        }
+
+        for (int i = 0; i < vertexCount; i++)
+        {
+            visited[i] = 0;
+        }
+        
+    }
+    vector<int> CalculateDFS(int start, int finish)
+    {
+        vector<int> route;
+        Step(start, finish, route);
+        return route;
+    }
+    bool Step(int current, int finish, vector<int>& route)
+    {
+        visited[current] = 1;
+        route.push_back(current);
+        for (int i = 0; i < vertexCount; i++) 
+        {
+            if (visited[i] == 0 && graphMatrix[current][i] == 1) 
+            {
+                if (i == finish) 
+                {
+                    route.push_back(i);
+                    return true;
+                }
+                bool finished = Step(i, finish, route);
+                if (finished)
+                    return true;
+            }
+        }
+        route.pop_back();
+        return false;
+    }
+};
+
+void CoutSquareMatrix(int** matrix, int size)
+{
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            cout << matrix[i][j] << " ";
+        }
+        cout << endl;
+    }
+}
+
+vector<int> ParseStringToIntegers(string stringToParse)
+{
+    stringToParse += ' ';
+    vector<int> integers;
+    string newIntString = "";
+    int newInt;
+    for (int i = 0; i < stringToParse.size(); i++)
+    {
+        if (stringToParse[i] != ' ')
+        {
+            newIntString += stringToParse[i];
+        }
+        else if (stringToParse[i] == ' ' && newIntString != "")
+        {
+            newInt = stoi(newIntString);
+            integers.push_back(newInt);
+            newIntString = "";
+        }
+    }
+    return integers;
+}
+
+int** ReadWeightMatrixFromFile(string fileName, int& vertexCount)
+{
+    ifstream inputStream;
+    inputStream.open(fileName + ".txt");
+
+    string newString;
+    getline(inputStream, newString);
+
+    int vertexNumber = ParseStringToIntegers(newString)[0];
+
+    int** weightMatrix;
+    weightMatrix = new int* [vertexNumber];
+    for (int i = 0; i < vertexNumber; i++)
+    {
+        weightMatrix[i] = new int[vertexNumber];
+    }
+
+    int str = 0;
+    while (getline(inputStream, newString))
+    {
+        vector<int> integersString = ParseStringToIntegers(newString);
+        for (int j = 0; j < vertexNumber; j++)
+        {
+            weightMatrix[str][j] = integersString[j];
+        }
+        str++;
+    }
+    vertexCount = vertexNumber;
+    return weightMatrix;
+}
+int main()
+{
+    int startPosition;
+    int finishPosition;
+
+    int graphVertexCount;
+    int** graphWeightMatrix = ReadWeightMatrixFromFile("Graph", graphVertexCount);
+    CoutSquareMatrix(graphWeightMatrix, graphVertexCount);
+
+    while (true)
+    {
+        Graph* graph = new Graph(graphWeightMatrix, graphVertexCount);
+        cout << endl;
+        cout << "Enter start position and finish position to get route" << endl;
+        cout << "Start position: ";
+        cin >> startPosition;
+        cout << "Finish position: ";
+        cin >> finishPosition;
+
+        if (startPosition > graphVertexCount || startPosition < 0 || finishPosition > graphVertexCount || finishPosition < 0)
+        {
+            cout << "Wrong format! Try again!" << endl;
+            continue;
+        }
+        vector<int> route = graph->CalculateDFS(startPosition, finishPosition);
+
+        cout << "First founded route is " << endl;
+        for (int i = 0; i < route.size(); i++)
+        {
+            if (i == 0)
+                cout << route[i];
+            else
+                cout << "->" << route[i];
+        }
+    }
+}
